@@ -3,6 +3,7 @@ package controller
 import (
 	"api/internal/dto"
 	"api/internal/service"
+	"api/internal/validation"
 	"context"
 	"net/http"
 
@@ -11,11 +12,15 @@ import (
 )
 
 type ProjectController struct {
-	service service.ProjectService
+	service   service.ProjectService
+	validator *validation.Validator
 }
 
-func NewProjectController(service service.ProjectService) *ProjectController {
-	return &ProjectController{service: service}
+func NewProjectController(service service.ProjectService, validator *validation.Validator) *ProjectController {
+	return &ProjectController{
+		service:   service,
+		validator: validator,
+	}
 }
 
 func (c *ProjectController) CreateProject(ctx *fiber.Ctx) error {
@@ -23,6 +28,13 @@ func (c *ProjectController) CreateProject(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request body",
+		})
+	}
+
+	// Validate request
+	if err := c.validator.Validate(&req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 

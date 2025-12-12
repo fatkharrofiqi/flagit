@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"api/internal/dto"
 	"api/internal/errors"
 	"api/internal/model"
 	"api/internal/service"
@@ -12,42 +13,25 @@ import (
 
 type AuthController struct {
 	authService service.AuthService
+	validator  *validation.Validator
 }
 
-func NewAuthController(authService service.AuthService) *AuthController {
+func NewAuthController(authService service.AuthService, validator *validation.Validator) *AuthController {
 	return &AuthController{
 		authService: authService,
+		validator:  validator,
 	}
 }
 
 func (c *AuthController) Register(ctx *fiber.Ctx) error {
-	var req model.RegisterRequest
+	var req dto.RegisterRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.SendStatus(fiber.StatusBadRequest) // Error handled by middleware
 	}
 
-	// Initialize validator
-	validator := validation.NewValidator()
-
-	// Validate request fields
-	if err := validator.ValidateUsername(req.Username); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
-	}
-
-	if err := validator.ValidateEmail(req.Email); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
-	}
-
-	if err := validator.ValidatePassword(req.Password); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
-	}
-
-	if err := validator.ValidateName(req.FirstName); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
-	}
-
-	if err := validator.ValidateName(req.LastName); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
+	// Validate entire request using injected validator
+	if err := c.validator.Validate(&req); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors.NewAppError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := c.authService.Register(ctx.Context(), &req)
@@ -59,21 +43,14 @@ func (c *AuthController) Register(ctx *fiber.Ctx) error {
 }
 
 func (c *AuthController) Login(ctx *fiber.Ctx) error {
-	var req model.LoginRequest
+	var req dto.LoginRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(errors.ErrInvalidRequestBody)
 	}
 
-	// Initialize validator
-	validator := validation.NewValidator()
-
-	// Validate request fields
-	if err := validator.ValidateUsername(req.Username); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
-	}
-
-	if err := validator.ValidatePassword(req.Password); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(err)
+	// Validate entire request using injected validator
+	if err := c.validator.Validate(&req); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(errors.NewAppError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := c.authService.Login(ctx.Context(), &req)
@@ -106,5 +83,7 @@ func (c *AuthController) Profile(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusNotFound).JSON(errors.ErrUserNotFound)
 	}
 
+	// Explicitly use model.User type
+	var _ *model.User = user // Force usage of model package
 	return ctx.JSON(user.ToResponse())
 }

@@ -8,6 +8,7 @@ import (
 	"api/internal/repository"
 	"api/internal/route"
 	"api/internal/service"
+	"api/internal/validation"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -40,6 +41,9 @@ func main() {
 	// Initialize SSE controller
 	sseController := controller.NewSSEController()
 
+	// Initialize validator once
+	validator := validation.NewValidator()
+
 	// Get JWT secret from config (in production, use environment variable)
 	jwtSecret := "your-super-secret-jwt-key-change-in-production" // TODO: Get from config
 
@@ -50,10 +54,10 @@ func main() {
 	authService := service.NewAuthService(userRepo, jwtSecret)
 
 	// Initialize controllers
-	projectController := controller.NewProjectController(projectService)
+	projectController := controller.NewProjectController(projectService, validator)
 	envController := controller.NewEnvironmentController(envService)
 	flagController := controller.NewFlagController(flagService)
-	authController := controller.NewAuthController(authService)
+	authController := controller.NewAuthController(authService, validator)
 
 	// Initialize Fiber app
 	app := fiber.New(fiber.Config{

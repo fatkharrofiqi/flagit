@@ -1,6 +1,7 @@
 package service
 
 import (
+	"api/internal/dto"
 	"api/internal/middleware"
 	"api/internal/model"
 	"api/internal/repository"
@@ -13,8 +14,8 @@ import (
 
 // AuthService defines the interface for authentication operations
 type AuthService interface {
-	Register(ctx context.Context, req *model.RegisterRequest) (*model.LoginResponse, error)
-	Login(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error)
+	Register(ctx context.Context, req *dto.RegisterRequest) (*dto.LoginResponse, error)
+	Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*model.User, error)
 }
 
@@ -33,7 +34,7 @@ func NewAuthService(userRepo repository.UserRepository, jwtSecret string) AuthSe
 }
 
 // Register creates a new user and returns JWT token
-func (s *authService) Register(ctx context.Context, req *model.RegisterRequest) (*model.LoginResponse, error) {
+func (s *authService) Register(ctx context.Context, req *dto.RegisterRequest) (*dto.LoginResponse, error) {
 	// Check if user already exists by username
 	existingUser, err := s.userRepo.GetByUsername(ctx, req.Username)
 	if err != nil {
@@ -81,14 +82,14 @@ func (s *authService) Register(ctx context.Context, req *model.RegisterRequest) 
 		return nil, err
 	}
 
-	return &model.LoginResponse{
+	return &dto.LoginResponse{
 		User:  user.ToResponse(),
 		Token: token,
 	}, nil
 }
 
 // Login authenticates a user and returns JWT token
-func (s *authService) Login(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error) {
+func (s *authService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	// Get user by username
 	user, err := s.userRepo.GetByUsername(ctx, req.Username)
 	if err != nil {
@@ -115,7 +116,7 @@ func (s *authService) Login(ctx context.Context, req *model.LoginRequest) (*mode
 		return nil, err
 	}
 
-	return &model.LoginResponse{
+	return &dto.LoginResponse{
 		User:  user.ToResponse(),
 		Token: token,
 	}, nil
