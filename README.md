@@ -1,135 +1,207 @@
-# Turborepo starter
+# Flagit - Feature Flag Management System
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern feature flag management system built with Go (Fiber) backend and React frontend.
 
-## Using this example
+## Tech Stack
 
-Run the following command:
+### Backend
+- **Go** with **Fiber** web framework
+- **PostgreSQL** database
+- **golang-migrate** for database migrations
+- **Server-Sent Events** for real-time updates
 
-```sh
-npx create-turbo@latest
-```
+### Frontend
+- **React 19** with TypeScript
+- **TanStack Router** for routing
+- **TanStack Query** for server state management
+- **Zustand** for client state management
+- **Tailwind CSS** + **shadcn/ui** for styling
+- **Vite** for build tooling
 
-## What's inside?
+## Development
 
-This Turborepo includes the following packages/apps:
+### Prerequisites
+1. **PostgreSQL** database running
+2. **Go** 1.25+ installed
+3. **Node.js** 18+ installed
+4. **pnpm** package manager
 
-### Apps and Packages
+### Setup
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+1. **Clone and install dependencies**
+   ```bash
+   git clone <repository-url>
+   cd flagits
+   pnpm install
+   ```
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+2. **Configure database**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database configuration
+   ```
 
-### Utilities
+3. **Set up database**
+   ```bash
+   # Run migrations and seed data
+   pnpm setup
+   ```
 
-This Turborepo has some additional tools already setup for you:
+4. **Start development servers**
+   ```bash
+   # Start both frontend and backend concurrently
+   pnpm start
+   ```
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Available Scripts
 
-### Build
+#### Root Scripts
+- `pnpm setup` - Run migrations and seed database
+- `pnpm start` - Start both frontend and backend
+- `pnpm migrate` - Run database migrations up
+- `pnpm migrate-down` - Rollback migrations
+- `pnpm seed` - Seed database with demo data
+- `pnpm api` - Start backend only
+- `pnpm dev` - Start frontend only (via turbo)
 
-To build all apps and packages, run the following command:
+#### Backend Scripts (apps/api)
+- `go run cmd/http/main.go` - Start HTTP server
+- `go run cmd/seed/main.go` - Seed database
 
-```
-cd my-turborepo
+#### Frontend Scripts (apps/admin)
+- `pnpm dev` - Start Vite dev server
+- `pnpm build` - Build for production
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+### API Endpoints
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+#### Projects
+- `GET /api/projects` - List all projects
+- `POST /api/projects` - Create new project
+- `GET /api/projects/:id` - Get project by ID
+- `PUT /api/projects/:id` - Update project
+- `DELETE /api/projects/:id` - Delete project
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+#### Environments
+- `GET /api/environments` - List all environments
+- `POST /api/environments` - Create new environment
+- `GET /api/projects/:projectId/environments` - Get project environments
+- `PUT /api/environments/:id` - Update environment
+- `DELETE /api/environments/:id` - Delete environment
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+#### Flags
+- `GET /api/projects/:projectId/flags` - Get project flags
+- `POST /api/flags` - Create new flag
+- `PUT /api/flags/:id` - Update flag
+- `DELETE /api/flags/:id` - Delete flag
+- `GET /api/flags/:flagId/values` - Get flag values
+- `POST /api/flags/values` - Create/update flag value
+- `PUT /api/flags/values/:id` - Update flag value
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+#### Real-time Updates
+- `GET /api/events` - SSE endpoint for real-time flag updates
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+### Architecture
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+├── apps/
+│   ├── admin/           # React frontend
+│   └── api/            # Go backend (with package.json)
+├── package.json          # Root package with turbo scripts
+├── turbo.json           # Turbo configuration
+└── README.md
 ```
 
-## Useful Links
+### Turbo Scripts Structure
 
-Learn more about the power of Turborepo:
+- **Root Scripts** - Orchestrates workspace commands using turbo
+- **API Package Scripts** (`apps/api/package.json`) - Contains Go-specific commands
+- **Admin Package Scripts** (`apps/admin/package.json`) - Contains frontend commands
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+### Available Scripts
+
+#### From Root (Recommended)
+- `pnpm setup` - Run migrations and seed database
+- `pnpm start` - Start both frontend and backend
+- `pnpm migrate` - Run migrations via turbo
+- `pnpm migrate-down` - Rollback migrations
+- `pnpm seed` - Seed database with demo data
+- `pnpm api` - Start backend only
+
+#### Direct API Commands
+- `cd apps/api && pnpm run dev` - Start backend directly
+- `cd apps/api && pnpm run migrate` - Run migrations directly
+- `cd apps/api && pnpm run seed` - Seed database directly
+
+#### Direct Admin Commands
+- `cd apps/admin && pnpm run dev` - Start frontend directly
+- `cd apps/admin && pnpm run build` - Build frontend
+
+## Features
+
+- ✅ **Project Management** - Create and manage feature flag projects
+- ✅ **Environment Management** - Set up dev, staging, production environments
+- ✅ **Feature Flags** - Create boolean, string, number, and JSON flags
+- ✅ **Per-Environment Values** - Different flag values per environment
+- ✅ **Real-time Updates** - Instant flag changes via Server-Sent Events
+- ✅ **Responsive UI** - Works on desktop and mobile
+- ✅ **Type Safety** - Full TypeScript support
+
+## Usage
+
+1. **Create a Project** - Start by creating a new project
+2. **Set up Environments** - Add dev, staging, production environments
+3. **Create Feature Flags** - Add flags with different data types
+4. **Configure Values** - Set flag values for each environment
+5. **Toggle Flags** - Enable/disable flags in real-time
+
+## Development Tips
+
+- The backend runs on `http://localhost:8080`
+- The frontend runs on `http://localhost:3000`
+- Database changes require running migrations
+- Use `pnpm check` to lint and format code
+- Use `pnpm check-types` for TypeScript checking
+
+## Production Deployment
+
+### Backend
+```bash
+cd apps/api
+go build -o flagits-api ./cmd/http
+./flagits-api
+```
+
+### Frontend
+```bash
+cd apps/admin
+pnpm build
+# Serve the dist/ directory
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run `pnpm check` to ensure code quality
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details
+
+### Quick Setup
+
+For a complete one-command setup:
+
+```bash
+# Copy environment config and run migrations + seed
+pnpm quick-setup
+```
+
+This is equivalent to:
+```bash
+cp .env.example .env
+pnpm migrate
+pnpm seed
+```

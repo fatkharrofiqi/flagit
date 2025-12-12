@@ -16,6 +16,16 @@
     "dev": {
       "cache": false,
       "persistent": true
-    }
+    },
+    "api:build": {
+      "outputs": ["dist/**"]
+    },
+    "api:dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "api:migrate": {},
+    "api:migrate-down": {},
+    "api:seed": {}
   }
 }

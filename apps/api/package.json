@@ -1,0 +1,21 @@
+{
+  "name": "@flagits/api",
+  "version": "1.0.0",
+  "description": "Flagit API - Go backend for feature flag management",
+  "main": "cmd/http/main.go",
+  "scripts": {
+    "build": "go build -o dist/flagits-api ./cmd/http",
+    "dev": "go run cmd/http/main.go",
+    "seed": "go run cmd/seed/main.go",
+    "migrate": "migrate -path db/migration -database \"postgresql://root:root@localhost:5432/flagit?sslmode=disable\" up",
+    "migrate-down": "migrate -path db/migration -database \"postgresql://root:root@localhost:5432/flagit?sslmode=disable\" down",
+    "start": "./dist/flagits-api",
+    "clean": "rm -rf dist/"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "go": {
+    "binaryName": "flagits-api",
+    "outputPath": "dist"
+  }
+}
